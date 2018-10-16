@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hz.business.studyMng.base.dao.EvaluatePOMapper" >
+  <resultMap id="BaseResultMap" type="com.hz.business.studyMng.base.pojo.EvaluatePO" >
+    <result column="evaluate_key" property="evaluateKey" jdbcType="VARCHAR" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="year_term_key" property="yearTermKey" jdbcType="VARCHAR" />
+    <result column="year_term_name" property="yearTermName" jdbcType="VARCHAR" />
+    <result column="year_name" property="yearName" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="teacher_name" property="teacherName" jdbcType="VARCHAR" />
+    <result column="teacher_key" property="teacherKey" jdbcType="VARCHAR" />
+    <result column="student_name" property="studentName" jdbcType="VARCHAR" />
+    <result column="student_key" property="studentKey" jdbcType="VARCHAR" />
+    <result column="total_score" property="totalScore" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    evaluate_key, title, year_term_key, status
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.hz.business.studyMng.base.pojo.EvaluatePOExample" >
+   select  evaluate_key, title, t.year_term_key, status,t1.year_name,t1.year_term_name
+    from jwxt_evaluate t
+    join jwxt_dmk_year_term t1 on t1.year_term_key=t.year_term_key
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectList" resultMap="BaseResultMap" >
+   select  evaluate_key, title, t.year_term_key, status,t1.year_name,t1.year_term_name
+    from jwxt_evaluate t
+    join jwxt_dmk_year_term t1 on t1.year_term_key=t.year_term_key
+  </select>
+  <select id="selectStuEvalList" resultMap="BaseResultMap" parameterType="java.util.Map">
+   	select t4.`title`,t3.`name` as teacher_name,t6.`year_term_name`,t5.`total_score`,t4.`evaluate_key`,t2.`teacher_key`,t.`student_key` 
+	from jwxt_student t
+	join `jwxt_schedule` t2 on t2.`class_key`=t.`class_key`
+	join `jwxt_teacher` t3 on t3.`teacher_key`=t2.`teacher_key`
+	join `jwxt_evaluate` t4 on t4.`evaluate_key`=t4.`evaluate_key`
+	join `jwxt_dmk_year_term` t6 on t6.`year_term_key`=t4.`year_term_key`
+	left join `jwxt_eval_stu` t5 on t5.`evaluate_Key`=t4.`evaluate_key` and t5.`student_key`=t.`student_key` and t5.`teacher_key`=t2.`teacher_key`
+	where t4.`status`=1 and t.`student_key`=#{params.studentKey,jdbcType=VARCHAR}
+  </select>
+  <select id="selectTeaEvalList" resultMap="BaseResultMap" parameterType="java.util.Map">
+    select t.`student_key`,t.`teacher_key`,t.`evaluate_Key` ,t2.`title`,t3.`year_term_name`,t.`total_score`,t4.`name` as student_name,t1.`name` as teacher_name
+	from `jwxt_eval_stu` t
+	join `jwxt_teacher` t1 on t1.`teacher_key`=t.`teacher_key`
+	join `jwxt_evaluate` t2 on `t2`.`evaluate_key`=t.`evaluate_Key`
+	join `jwxt_dmk_year_term` t3 on t3.`year_term_key`=t2.`year_term_key`
+	join jwxt_student t4 on t4.`student_key`=t.`student_key`
+	<if test="params.content != null" >
+      where    t2.`title` like #{params.content,jdbcType=VARCHAR}
+    </if>
+	
+  </select>
+  <delete id="deleteByExample" parameterType="com.hz.business.studyMng.base.pojo.EvaluatePOExample" >
+    delete from jwxt_evaluate
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.hz.business.studyMng.base.pojo.EvaluatePO" >
+    insert into jwxt_evaluate (evaluate_key, title, year_term_key, 
+      status)
+    values (#{evaluateKey,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{yearTermKey,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.hz.business.studyMng.base.pojo.EvaluatePO" >
+    insert into jwxt_evaluate
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="evaluateKey != null" >
+        evaluate_key,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="yearTermKey != null" >
+        year_term_key,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="evaluateKey != null" >
+        #{evaluateKey,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="yearTermKey != null" >
+        #{yearTermKey,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.hz.business.studyMng.base.pojo.EvaluatePOExample" resultType="java.lang.Integer" >
+    select count(*) from jwxt_evaluate
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update jwxt_evaluate
+    <set >
+      <if test="record.evaluateKey != null" >
+        evaluate_key = #{record.evaluateKey,jdbcType=INTEGER},
+      </if>
+      <if test="record.title != null" >
+        title = #{record.title,jdbcType=VARCHAR},
+      </if>
+      <if test="record.yearTermKey != null" >
+        year_term_key = #{record.yearTermKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update jwxt_evaluate
+    set evaluate_key = #{record.evaluateKey,jdbcType=INTEGER},
+      title = #{record.title,jdbcType=VARCHAR},
+      year_term_key = #{record.yearTermKey,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hz.business.studyMng.base.dao.SchedulePOMapper" >
+  <resultMap id="BaseResultMap" type="com.hz.business.studyMng.base.pojo.SchedulePO" >
+    <id column="schedule_key" property="scheduleKey" jdbcType="VARCHAR" />
+    <result column="week_Seq" property="weekSeq" jdbcType="INTEGER" />
+    <result column="order_Seq" property="orderSeq" jdbcType="INTEGER" />
+    <result column="teacher_key" property="teacherKey" jdbcType="VARCHAR" />
+    <result column="class_course_id" property="classCourseId" jdbcType="INTEGER" />
+    <result column="start_week_seq" property="startWeekSeq" jdbcType="INTEGER" />
+    <result column="end_week_seq" property="endWeekSeq" jdbcType="INTEGER" />
+    <result column="class_key" property="classKey" jdbcType="VARCHAR" />
+    <result column="teacher_name" property="teacherName" jdbcType="VARCHAR" />
+    <result column="course_name" property="courseName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    schedule_key, week_Seq, order_Seq, teacher_key, class_course_id, start_week_seq, 
+    end_week_seq, class_key
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.hz.business.studyMng.base.pojo.SchedulePOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from jwxt_schedule
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectListByClassKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select t.`week_Seq`,t.`order_Seq`,t.`schedule_key`,t2.`name` as course_name,t3.`name` as teacher_name 
+    	,t.`start_week_seq`,t.`end_week_seq` 
+	from `jwxt_schedule` t
+	join `jwxt_conn_class_course` t1 on t1.`id`=t.`class_course_id`
+	join `jwxt_course` t2 on t2.`id`=t1.`course_id` 
+	join `jwxt_teacher` t3 on t3.`teacher_key`=t.`teacher_key`
+	where t.`class_key`=#{classKey,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from jwxt_schedule
+    where schedule_key = #{scheduleKey,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from jwxt_schedule
+    where schedule_key = #{scheduleKey,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.hz.business.studyMng.base.pojo.SchedulePOExample" >
+    delete from jwxt_schedule
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.hz.business.studyMng.base.pojo.SchedulePO" >
+    insert into jwxt_schedule (schedule_key, week_Seq, order_Seq, 
+      teacher_key, class_course_id, start_week_seq, 
+      end_week_seq, class_key)
+    values (#{scheduleKey,jdbcType=VARCHAR}, #{weekSeq,jdbcType=INTEGER}, #{orderSeq,jdbcType=INTEGER}, 
+      #{teacherKey,jdbcType=VARCHAR}, #{classCourseId,jdbcType=INTEGER}, #{startWeekSeq,jdbcType=INTEGER}, 
+      #{endWeekSeq,jdbcType=INTEGER}, #{classKey,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.hz.business.studyMng.base.pojo.SchedulePO" >
+    insert into jwxt_schedule
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="scheduleKey != null" >
+        schedule_key,
+      </if>
+      <if test="weekSeq != null" >
+        week_Seq,
+      </if>
+      <if test="orderSeq != null" >
+        order_Seq,
+      </if>
+      <if test="teacherKey != null" >
+        teacher_key,
+      </if>
+      <if test="classCourseId != null" >
+        class_course_id,
+      </if>
+      <if test="startWeekSeq != null" >
+        start_week_seq,
+      </if>
+      <if test="endWeekSeq != null" >
+        end_week_seq,
+      </if>
+      <if test="classKey != null" >
+        class_key,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="scheduleKey != null" >
+        #{scheduleKey,jdbcType=VARCHAR},
+      </if>
+      <if test="weekSeq != null" >
+        #{weekSeq,jdbcType=INTEGER},
+      </if>
+      <if test="orderSeq != null" >
+        #{orderSeq,jdbcType=INTEGER},
+      </if>
+      <if test="teacherKey != null" >
+        #{teacherKey,jdbcType=VARCHAR},
+      </if>
+      <if test="classCourseId != null" >
+        #{classCourseId,jdbcType=INTEGER},
+      </if>
+      <if test="startWeekSeq != null" >
+        #{startWeekSeq,jdbcType=INTEGER},
+      </if>
+      <if test="endWeekSeq != null" >
+        #{endWeekSeq,jdbcType=INTEGER},
+      </if>
+      <if test="classKey != null" >
+        #{classKey,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.hz.business.studyMng.base.pojo.SchedulePOExample" resultType="java.lang.Integer" >
+    select count(*) from jwxt_schedule
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update jwxt_schedule
+    <set >
+      <if test="record.scheduleKey != null" >
+        schedule_key = #{record.scheduleKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.weekSeq != null" >
+        week_Seq = #{record.weekSeq,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderSeq != null" >
+        order_Seq = #{record.orderSeq,jdbcType=INTEGER},
+      </if>
+      <if test="record.teacherKey != null" >
+        teacher_key = #{record.teacherKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.classCourseId != null" >
+        class_course_id = #{record.classCourseId,jdbcType=INTEGER},
+      </if>
+      <if test="record.startWeekSeq != null" >
+        start_week_seq = #{record.startWeekSeq,jdbcType=INTEGER},
+      </if>
+      <if test="record.endWeekSeq != null" >
+        end_week_seq = #{record.endWeekSeq,jdbcType=INTEGER},
+      </if>
+      <if test="record.classKey != null" >
+        class_key = #{record.classKey,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update jwxt_schedule
+    set schedule_key = #{record.scheduleKey,jdbcType=VARCHAR},
+      week_Seq = #{record.weekSeq,jdbcType=INTEGER},
+      order_Seq = #{record.orderSeq,jdbcType=INTEGER},
+      teacher_key = #{record.teacherKey,jdbcType=VARCHAR},
+      class_course_id = #{record.classCourseId,jdbcType=INTEGER},
+      start_week_seq = #{record.startWeekSeq,jdbcType=INTEGER},
+      end_week_seq = #{record.endWeekSeq,jdbcType=INTEGER},
+      class_key = #{record.classKey,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hz.business.studyMng.base.pojo.SchedulePO" >
+    update jwxt_schedule
+    <set >
+      <if test="weekSeq != null" >
+        week_Seq = #{weekSeq,jdbcType=INTEGER},
+      </if>
+      <if test="orderSeq != null" >
+        order_Seq = #{orderSeq,jdbcType=INTEGER},
+      </if>
+      <if test="teacherKey != null" >
+        teacher_key = #{teacherKey,jdbcType=VARCHAR},
+      </if>
+      <if test="classCourseId != null" >
+        class_course_id = #{classCourseId,jdbcType=INTEGER},
+      </if>
+      <if test="startWeekSeq != null" >
+        start_week_seq = #{startWeekSeq,jdbcType=INTEGER},
+      </if>
+      <if test="endWeekSeq != null" >
+        end_week_seq = #{endWeekSeq,jdbcType=INTEGER},
+      </if>
+      <if test="classKey != null" >
+        class_key = #{classKey,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where schedule_key = #{scheduleKey,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hz.business.studyMng.base.pojo.SchedulePO" >
+    update jwxt_schedule
+    set week_Seq = #{weekSeq,jdbcType=INTEGER},
+      order_Seq = #{orderSeq,jdbcType=INTEGER},
+      teacher_key = #{teacherKey,jdbcType=VARCHAR},
+      class_course_id = #{classCourseId,jdbcType=INTEGER},
+      start_week_seq = #{startWeekSeq,jdbcType=INTEGER},
+      end_week_seq = #{endWeekSeq,jdbcType=INTEGER},
+      class_key = #{classKey,jdbcType=VARCHAR}
+    where schedule_key = #{scheduleKey,jdbcType=VARCHAR}
+  </update>
+</mapper>

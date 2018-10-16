@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hz.business.studyMng.base.dao.EvaluateOptionPOMapper" >
+  <resultMap id="BaseResultMap" type="com.hz.business.studyMng.base.pojo.EvaluateOptionPO" >
+    <result column="option_key" property="optionKey" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="evaluate_key" property="evaluateKey" jdbcType="VARCHAR" />
+    <result column="seq" property="seq" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    option_key, content, evaluate_key, seq
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.hz.business.studyMng.base.pojo.EvaluateOptionPOExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from jwxt_evaluate_option
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectOptionScoreList" resultMap="BaseResultMap" parameterType="java.util.Map" >
+     select t.content,t.option_key,t1.`score` ,t.seq
+	 from jwxt_evaluate_option t
+	 join `jwxt_eval_stu` t2 on `t2`.`evaluate_Key`=t.`evaluate_key` and t2.`student_key`=#{record.studentKey,jdbcType=VARCHAR} and t2.`teacher_key`=#{record.teacherKey,jdbcType=VARCHAR}
+	 join `jwxt_eval_stu_option` t1 on t1.`option_key`=t.`option_key` and t1.`eval_stu_key`=t2.`eval_stu_key` 
+	 where t.`evaluate_key`=#{record.evaluateKey,jdbcType=VARCHAR}
+  </select>
+  
+  <delete id="deleteByExample" parameterType="com.hz.business.studyMng.base.pojo.EvaluateOptionPOExample" >
+    delete from jwxt_evaluate_option
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.hz.business.studyMng.base.pojo.EvaluateOptionPO" >
+    insert into jwxt_evaluate_option (option_key, content, evaluate_key, 
+      seq)
+    values (#{optionKey,jdbcType=INTEGER}, #{content,jdbcType=VARCHAR}, #{evaluateKey,jdbcType=VARCHAR}, 
+      #{seq,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.hz.business.studyMng.base.pojo.EvaluateOptionPO" >
+    insert into jwxt_evaluate_option
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="optionKey != null" >
+        option_key,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="evaluateKey != null" >
+        evaluate_key,
+      </if>
+      <if test="seq != null" >
+        seq,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="optionKey != null" >
+        #{optionKey,jdbcType=INTEGER},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="evaluateKey != null" >
+        #{evaluateKey,jdbcType=VARCHAR},
+      </if>
+      <if test="seq != null" >
+        #{seq,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.hz.business.studyMng.base.pojo.EvaluateOptionPOExample" resultType="java.lang.Integer" >
+    select count(*) from jwxt_evaluate_option
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update jwxt_evaluate_option
+    <set >
+      <if test="record.optionKey != null" >
+        option_key = #{record.optionKey,jdbcType=INTEGER},
+      </if>
+      <if test="record.content != null" >
+        content = #{record.content,jdbcType=VARCHAR},
+      </if>
+      <if test="record.evaluateKey != null" >
+        evaluate_key = #{record.evaluateKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.seq != null" >
+        seq = #{record.seq,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update jwxt_evaluate_option
+    set option_key = #{record.optionKey,jdbcType=INTEGER},
+      content = #{record.content,jdbcType=VARCHAR},
+      evaluate_key = #{record.evaluateKey,jdbcType=VARCHAR},
+      seq = #{record.seq,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>

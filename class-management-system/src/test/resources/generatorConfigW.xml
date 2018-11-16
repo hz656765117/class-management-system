@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <!-- <classPathEntry location="ojdbc14.jar" /> -->
+    <classPathEntry location="F:\/mysql-connector-java-5.1.35.jar"/><!-- 这里配置本地oracle驱动jdbc jar包 -->
+    <context id="mysql" targetRuntime="MyBatis3">
+        <plugin type="org.mybatis.generator.plugins.ToStringPlugin"></plugin>
+        <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin"></plugin>
+        <plugin type="com.hz.springboot.base.tool.TopSerializablePlugin"></plugin>
+
+        <commentGenerator type="com.hz.springboot.base.tool.DBCommentGenerator">
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+
+
+        <!--        <plugin type="com.wowealth.tool.plugin.TopSerializablePlugin"></plugin>
+
+                <commentGenerator type="com.wowealth.tool.plugin.DBCommentGenerator">
+                    <property name="suppressAllComments" value="true"/>
+                </commentGenerator>-->
+
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://127.0.0.1:3306/springboot"
+                        userId="zls" password="hz123456">
+            <property name="remarksReporting" value="true"/>
+        </jdbcConnection>
+
+
+
+        <!-- POJO类生成配置 -->
+        <javaModelGenerator targetPackage="com.hz.springboot.business.pojo" targetProject="G:\testMybatis">
+            <property name="trimStrings" value="true" />
+        </javaModelGenerator>
+
+        <!-- SqlMap文件生成配置 -->
+        <sqlMapGenerator targetPackage="ibatis/sample" targetProject="G:\testMybatis">
+        </sqlMapGenerator>
+
+        <javaClientGenerator targetPackage="com.hz.springboot.business.mybatis.mapper" targetProject="G:\testMybatis"
+                             type="XMLMAPPER"/>
+
+
+        <table tableName="t_mkm_recommend_popup_records" domainObjectName="MkmRecommendPopupRecordsPo" enableCountByExample="true"
+               enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true"
+               selectByExampleQueryId="true">
+            <generatedKey column="ID" sqlStatement="oracle" identity="true"/>
+        </table>
+
+    </context>
+</generatorConfiguration>

@@ -1,0 +1,204 @@
+package com.hz.springboot.business.classAppraisal.controller;
+
+import com.hz.springboot.base.page.Page;
+import com.hz.springboot.base.page.PageHelper;
+import com.hz.springboot.business.base.controller.BaseController;
+import com.hz.springboot.business.base.model.JsonResult;
+import com.hz.springboot.business.base.model.SearchParam;
+import com.hz.springboot.business.basicDataMng.base.pojo.TeacherPO;
+import com.hz.springboot.business.basicDataMng.service.TeacherService;
+import com.hz.springboot.business.classAppraisal.base.dao.PrizeAwardsMapper;
+import com.hz.springboot.business.classAppraisal.base.pojo.PrizeApply;
+import com.hz.springboot.business.classAppraisal.base.pojo.PrizeAwards;
+import com.hz.springboot.business.classAppraisal.base.pojo.PrizeAwardsExample;
+import com.hz.springboot.business.classAppraisal.service.PrizeApplyService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+
+/**
+ * 奖学金管理controller类
+ * @author huangzhuo
+ *
+ * @version 创建时间： 2017-3-21 下午9:44:20
+ */
+@Controller
+@RequestMapping("/prize")
+public class PrizeManagementController extends BaseController {
+	
+	@Autowired
+	public PrizeApplyService prizeApplyService;
+	
+	
+	@Autowired
+	public PrizeAwardsMapper prizeAwardsMapper;
+	
+	
+	@Autowired
+	public TeacherService teacherService;
+	
+	/**
+	 * 老师奖学金管理列表
+	 * @param request
+	 * @param response
+	 * @param model
+	 * @return
+	 * @throws IOException
+	 */
+	@RequestMapping("/index")
+	public String toindex(HttpServletRequest request ,HttpServletResponse response,Model model,Integer type ) throws IOException{
+		model.addAttribute("type", type);
+		return  "appraisal/jsp/index" ;
+	}
+	
+	/**
+	 * 异步加载老师奖学金列表数据
+	 * @param search
+	 * @param request
+	 * @return
+	 */
+    @RequestMapping("listPrizeApplys")
+    @ResponseBody
+    public Map<String,Object> listPrizeApplys(@ModelAttribute("search") SearchParam search, Integer type , HttpServletRequest request) {
+    	Map<String,Object> json = new HashMap<>();
+        json.put("success", false);
+        String userId = "2014001";
+        
+        PageHelper.startPage(search.getPageNo(), search.getPageSize());
+//        Page<PrizeApply> prizeApplys = (Page<PrizeApply>) prizeApplyService.prizeApplyListByAuditId(userId);
+        Map<String, Object> map = new HashMap<String ,Object>();
+        if ( "2".equals(user.getType()) ) {  //老师查由自己审核的 管理员查所有的
+        	map.put("teacherId", user.getUserName());
+        } else if ("3".equals(user.getType())) { //学生查自己申请的
+        	map.put("studentId", user.getUserName());
+        }
+        
+        map.put("type", type);
+        Page<PrizeApply> prizeApplys = (Page<PrizeApply>) prizeApplyService.listApplyList(map);
+        if(prizeApplys.isEmpty()) {
+            return json;
+        }
+        
+        json.put("success", true);
+        json.put("obj", prizeApplys);
+        json.put("curPage", search.getPageNo());
+        json.put("totalPage",  prizeApplys.isEmpty() ? 1 : prizeApplys.getPages());
+        return json;
+    }
+    
+    /**
+     * 学生奖学金申请列表
+     * @param request
+     * @param response
+     * @param model
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping("/toStudentPrizeApplyList")
+	public String toStudentPrizeApplyList(HttpServletRequest request ,HttpServletResponse response,Model model) throws IOException{
+	 
+		return  "appraisal/jsp/studentPrizeApplyList" ;
+	}
+    
+    /**
+     * 异步加载学生奖学金列表数据 
+     * @param search
+     * @param request
+     * @return
+     */
+    @RequestMapping("listStudentPrizeApplys")
+    @ResponseBody
+    public Map<String,Object> listStudentPrizeApplys(@ModelAttribute("search") SearchParam search, HttpServletRequest request) {
+    	Map<String,Object> json = new HashMap<>();
+        json.put("success", false);
+        
+        PageHelper.startPage(search.getPageNo(), search.getPageSize());
+//        Page<PrizeApply> prizeApplys = (Page<PrizeApply>) prizeApplyService.prizeApplyListByAuditId(userId);
+        Map<String, Object> map = new HashMap<String ,Object>();
+        map.put("studentId", user.getUserName());
+      //  map.put("type", value);
+        Page<PrizeApply> prizeApplys = (Page<PrizeApply>) prizeApplyService.listApplyList(map);
+        if(prizeApplys.isEmpty()) {
+            return json;
+        }
+        
+        json.put("success", true);
+        json.put("obj", prizeApplys);
+        json.put("curPage", search.getPageNo());
+        json.put("totalPage",  prizeApplys.isEmpty() ? 1 : prizeApplys.getPages());
+        return json;
+    }
+    
+    
+    @RequestMapping("/toPrizeApply")
+	public String toCreateActivity(HttpServletRequest request ,HttpServletResponse response,Model model,Integer type) throws IOException{
+    	List<TeacherPO> teachers = teacherService.listAllTeacher();
+    	PrizeAwardsExample example  = new PrizeAwardsExample();
+    	example.createCriteria().andDeleteFlagEqualTo(0).andTypeEqualTo(type+"");
+    	List<PrizeAwards>  prizeAwards = prizeAwardsMapper.selectByExample(example);
+    	model.addAttribute("teachers", teachers);
+    	model.addAttribute("prizeAwards", prizeAwards);
+    	model.addAttribute("type", type);
+    	return  "appraisal/jsp/createPrizeApply" ;
+	}
+    
+    @RequestMapping("insertPrizeApply")
+    @ResponseBody
+    public JsonResult insertActivity(PrizeApply prizeApply, HttpServletRequest request) {
+    	prizeApply.setStudentId(user.getUserName());
+    	prizeApplyService.insertPrizeApply(prizeApply);
+        return JsonResult.success("奖学金申请新增成功", prizeApply);
+    }
+    
+    @RequestMapping("/toUpdatePrizeApply")
+	public String toUpdatePrizeApply(HttpServletRequest request,Integer id ,HttpServletResponse response,Model model,Integer type) throws IOException{
+	Map<String, Object> map = new HashMap<String ,Object>();
+	map.put("id", id);
+	List<PrizeApply> prizeApplys =  prizeApplyService.listApplyList(map);
+	model.addAttribute("type", type);
+	if ( prizeApplys != null && prizeApplys.size() > 0 ) {
+		model.addAttribute("prizeApply", prizeApplys.get(0));
+	}else{
+		model.addAttribute("prizeApply", null);
+	}
+    	return  "appraisal/jsp/updatePrizeApply" ;
+	}
+    
+    @RequestMapping("/toShowPrizeApply")
+	public String toShowPrizeApply(HttpServletRequest request,Integer id ,HttpServletResponse response,Model model) throws IOException{
+//    	ClassActivity activity = classActivityService.getActivityById(id);
+//    	model.addAttribute("activity", activity);
+    	return  "appraisal/jsp/createPrizeApply" ;
+	}
+    
+    
+    @RequestMapping("updatePrizeApply")
+    @ResponseBody
+    public JsonResult updateActivity(PrizeApply prizeApply, HttpServletRequest request) {
+    	prizeApplyService.updatePrizeApply(prizeApply);
+        return JsonResult.success("修改成功");
+    }
+	
+    @RequestMapping("deletePrizeApply")
+    @ResponseBody
+    public JsonResult deleteActivity(Integer[] keyArr, HttpServletRequest request) {
+    	String ids = StringUtils.join(keyArr, ",");
+    	prizeApplyService.delPrizeApply(ids);
+        return JsonResult.success(true);
+    }
+	
+     
+}
